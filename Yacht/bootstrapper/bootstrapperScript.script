@@ -1,0 +1,20 @@
+local gameState = require("game.state")
+local messageIds = require("common.messageids")
+
+function init(self)
+	math.randomseed(os.time())
+	gameState.rollDice()
+	msg.post("/firstDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=1})
+	msg.post("/secondDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=2})
+	msg.post("/thirdDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=3})
+	msg.post("/fourthDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=4})
+	msg.post("/fifthDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=5})
+	gameState.render()
+	msg.post("/mainmenu", "acquire_input_focus")
+end
+
+function update(self, dt)
+end
+
+function on_message(self, message_id, message, sender)
+end

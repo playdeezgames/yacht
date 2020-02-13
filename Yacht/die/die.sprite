@@ -1,0 +1,4 @@
+tile_set: "/assets/atlases/images.atlas"
+default_animation: "Six"
+material: "/builtins/materials/sprite.material"
+blend_mode: BLEND_MODE_ALPHA
