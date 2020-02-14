@@ -4,13 +4,16 @@ local options = require("common.options")
 
 local STATE_MAINMENU = "mainmenu"
 local STATE_ROLLING = "rolling"
+local STATE_SCORING = "scoring"
 
 local URL_MAINMENU = "/mainmenu"
 local URL_ROLLING = "/rolling"
+local URL_SCORING = "/scoring"
 
 local stateTable = {}
 stateTable[STATE_MAINMENU]=URL_MAINMENU
 stateTable[STATE_ROLLING]=URL_ROLLING
+stateTable[STATE_SCORING]=URL_SCORING
 
 function init(self)
 	options.loadOptions()
