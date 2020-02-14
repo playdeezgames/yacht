@@ -17,7 +17,7 @@ end
 function on_message(self, message_id, message, sender)
 end
 
-function updateMainMenuHover(x,y)
+local function updateMainMenuHover(x,y)
 	hoverButton = nil
 	if gui.pick_node(gui.get_node(NODE_HELPBUTTON), x, y) then
 		hoverButton = NODE_HELPBUTTON
@@ -59,7 +59,7 @@ function updateMainMenuHover(x,y)
 	end
 end
 
-function doMainMenuClick()
+local function doMainMenuClick()
 	print(hoverButton)
 	if hoverButton==NODE_HELPBUTTON then
 		sys.open_url("https://grumpygamedev.gitlab.io/getoffmylawn/help/yacht.html")

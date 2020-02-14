@@ -1,29 +1,30 @@
-function init(self)
-	-- Add initialization code here
-	-- Remove this function if not needed
-end
+local NODE_ACES = "Aces"
+local NODE_TWOS = "Twos"
+local NODE_THREES = "Threes"
+local NODE_FOURS = "Fours"
+local NODE_FIVES = "Fives"
+local NODE_SIXES = "Sixes"
+local NODE_BONUS = "Bonus"
+local NODE_THREEOFAKIND = "ThreeOfAKind"
+local NODE_FOUROFAKIND = "FourOfAKind"
+local NODE_FULLHOUSE = "FullHouse"
+local NODE_SMALLSTRAIGHT = "SmallStraight"
+local NODE_LARGESTRAIGHT = "LargeStraight"
+local NODE_YACHT = "Yacht"
+local NODE_CHANCE = "Chance"
 
-function final(self)
-	-- Add finalization code here
-	-- Remove this function if not needed
+function init(self)
 end
 
 function update(self, dt)
-	-- Add update code here
-	-- Remove this function if not needed
 end
 
-function on_message(self, message_id, message, sender)
-	-- Add message-handling code here
-	-- Remove this function if not needed
+local function updateScoringHoverButton(x,y)
+	
 end
 
 function on_input(self, action_id, action)
-	-- Add input-handling code here
-	-- Remove this function if not needed
-end
-
-function on_reload(self)
-	-- Add input-handling code here
-	-- Remove this function if not needed
+	if action_id == nil then
+		updateScoringHoverButton(action.x, action.y)
+	end
 end

@@ -1,4 +1,5 @@
 local gameState = require("game.state")
+local messageIds = require("common.messageids")
 local hoverButton = nil
 local NODE_FIRSTDIE = "FirstDie"
 local NODE_SECONDDIE = "SecondDie"
@@ -34,7 +35,7 @@ function isRollingHoverButton(nodeId,x,y,hover,nohover)
 	end
 end
 
-function updateRollingHoverButton(x,y)
+local function updateRollingHoverButton(x,y)
 	hoverButton = nil
 	if isRollingHoverButton(NODE_FIRSTDIE, x, y, "DieHover", "Die") then
 		hoverButton = NODE_FIRSTDIE
@@ -69,7 +70,7 @@ function updateRollingHoverButton(x,y)
 	end
 end
 
-function doRollingClick()
+local function doRollingClick()
 	if hoverButton==NODE_FIRSTDIE then
 		gameState.toggleKept(1)
 		gameState.render()
@@ -87,6 +88,8 @@ function doRollingClick()
 		gameState.render()
 	elseif hoverButton==NODE_ROLLBUTTON then
 		gameState.reroll()
+	elseif hoverButton==NODE_SCOREBUTTON then
+		msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="scoring"})
 	end
 end
 
