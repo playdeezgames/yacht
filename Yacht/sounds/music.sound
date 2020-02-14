@@ -1,0 +1,6 @@
+sound: "/assets/audio/Komiku_-_14_-_Un_coin_loin_du_monde.ogg"
+looping: 1
+group: "master"
+gain: 0.1
+pan: 0.0
+speed: 1.0

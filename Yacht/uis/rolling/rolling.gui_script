@@ -1,0 +1,101 @@
+local gameState = require("game.state")
+local hoverButton = nil
+local NODE_FIRSTDIE = "FirstDie"
+local NODE_SECONDDIE = "SecondDie"
+local NODE_THIRDDIE = "ThirdDie"
+local NODE_FOURTHDIE = "FourthDie"
+local NODE_FIFTHDIE = "FifthDie"
+local NODE_ROUNDNUMBER = "RoundNumber"
+local NODE_ROLLNUMBER = "RollNumber"
+local NODE_ROLLBUTTON = "RollButton"
+local NODE_SCOREBUTTON = "ScoreButton"
+
+function init(self)
+end
+
+function update(self, dt)
+	gui.set_text(gui.get_node(NODE_ROUNDNUMBER), "Round #"..gameState.getCurrentRound())
+	gui.set_text(gui.get_node(NODE_ROLLNUMBER), "Roll #"..gameState.getCurrentRoll())
+	if not gameState.canRollAgain() then
+		gui.set_color(gui.get_node(NODE_ROLLBUTTON), vmath.vector3(0.5, 0.5, 0.5))
+	end
+end
+
+function on_message(self, message_id, message, sender)
+end
+
+function isRollingHoverButton(nodeId,x,y,hover,nohover)
+	if gui.pick_node(gui.get_node(nodeId), x, y) then
+		gui.play_flipbook(gui.get_node(nodeId), hover)
+		return true
+	else
+		gui.play_flipbook(gui.get_node(nodeId), nohover)
+		return false
+	end
+end
+
+function updateRollingHoverButton(x,y)
+	hoverButton = nil
+	if isRollingHoverButton(NODE_FIRSTDIE, x, y, "DieHover", "Die") then
+		hoverButton = NODE_FIRSTDIE
+	end
+	if isRollingHoverButton(NODE_SECONDDIE, x, y, "DieHover", "Die") then
+		hoverButton = NODE_SECONDDIE
+	end
+	if isRollingHoverButton(NODE_THIRDDIE, x, y, "DieHover", "Die") then
+		hoverButton = NODE_THIRDDIE
+	end
+	if isRollingHoverButton(NODE_FOURTHDIE, x, y, "DieHover", "Die") then
+		hoverButton = NODE_FOURTHDIE
+	end
+	if isRollingHoverButton(NODE_FIFTHDIE, x, y, "DieHover", "Die") then
+		hoverButton = NODE_FIFTHDIE
+	end
+	if gui.pick_node(gui.get_node(NODE_ROLLBUTTON), x, y) and gameState.canRollAgain() then
+		hoverButton = NODE_ROLLBUTTON
+		gui.set_color(gui.get_node(NODE_ROLLBUTTON), vmath.vector3(0.6, 1.0, 1.0))
+	else
+		if gameState.canRollAgain() then
+			gui.set_color(gui.get_node(NODE_ROLLBUTTON), vmath.vector3(1.0, 1.0, 1.0))
+		else
+			gui.set_color(gui.get_node(NODE_ROLLBUTTON), vmath.vector3(0.5, 0.5, 0.5))
+		end
+	end
+	if gui.pick_node(gui.get_node(NODE_SCOREBUTTON), x, y) then
+		hoverButton = NODE_SCOREBUTTON
+		gui.set_color(gui.get_node(NODE_SCOREBUTTON), vmath.vector3(0.6, 1.0, 1.0))
+	else	
+		gui.set_color(gui.get_node(NODE_SCOREBUTTON), vmath.vector3(1.0, 1.0, 1.0))
+	end
+end
+
+function doRollingClick()
+	if hoverButton==NODE_FIRSTDIE then
+		gameState.toggleKept(1)
+		gameState.render()
+	elseif hoverButton==NODE_SECONDDIE then
+		gameState.toggleKept(2)
+		gameState.render()
+	elseif hoverButton==NODE_THIRDDIE then
+		gameState.toggleKept(3)
+		gameState.render()
+	elseif hoverButton==NODE_FOURTHDIE then
+		gameState.toggleKept(4)
+		gameState.render()
+	elseif hoverButton==NODE_FIFTHDIE then
+		gameState.toggleKept(5)
+		gameState.render()
+	elseif hoverButton==NODE_ROLLBUTTON then
+		gameState.reroll()
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == nil then
+		updateRollingHoverButton(action.x,action.y)
+	elseif action_id==hash("leftclick") and action.pressed then
+		updateRollingHoverButton(action.x,action.y)
+		doRollingClick()
+	end
+end
+

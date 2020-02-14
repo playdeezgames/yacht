@@ -1,20 +1,37 @@
 local gameState = require("game.state")
 local messageIds = require("common.messageids")
+local options = require("common.options")
+
+local STATE_MAINMENU = "mainmenu"
+local STATE_ROLLING = "rolling"
+
+local URL_MAINMENU = "/mainmenu"
+local URL_ROLLING = "/rolling"
+
+local stateTable = {}
+stateTable[STATE_MAINMENU]=URL_MAINMENU
+stateTable[STATE_ROLLING]=URL_ROLLING
 
 function init(self)
+	options.loadOptions()
 	math.randomseed(os.time())
 	gameState.rollDice()
-	msg.post("/firstDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=1})
-	msg.post("/secondDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=2})
-	msg.post("/thirdDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=3})
-	msg.post("/fourthDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=4})
-	msg.post("/fifthDie", messageIds.MESSAGEID_SETDIEINDEX(), {dieIndex=5})
 	gameState.render()
-	msg.post("/mainmenu", "acquire_input_focus")
-end
-
-function update(self, dt)
+	msg.post(".", messageIds.MESSAGEID_SETUISTATE(),{state=STATE_MAINMENU})
+	sound.play("/sounds#music")
 end
 
 function on_message(self, message_id, message, sender)
+	print(message_id)
+	if message_id==hash(messageIds.MESSAGEID_SETUISTATE()) then
+		for k, v in pairs(stateTable) do
+			if k==message.state then
+				msg.post(v, "enable")
+				msg.post(v, "acquire_input_focus")
+			else
+				msg.post(v, "disable")
+				msg.post(v, "release_input_focus")
+			end
+		end
+	end
 end
