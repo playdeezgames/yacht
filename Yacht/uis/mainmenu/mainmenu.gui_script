@@ -60,7 +60,6 @@ local function updateMainMenuHover(x,y)
 end
 
 local function doMainMenuClick()
-	print(hoverButton)
 	if hoverButton==NODE_HELPBUTTON then
 		sys.open_url("https://grumpygamedev.gitlab.io/getoffmylawn/help/yacht.html")
 	elseif hoverButton==NODE_INFOBUTTON then

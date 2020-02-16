@@ -405,6 +405,7 @@ end
 
 function module.nextRound()
 	if module.getCurrentRound() < ROUND_COUNT then
+		module.setCurrentScoreType(nil)
 		currentRound = currentRound + 1
 		startRound()
 		return true
