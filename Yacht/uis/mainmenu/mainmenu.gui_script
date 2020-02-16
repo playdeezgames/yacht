@@ -72,6 +72,7 @@ local function doMainMenuClick()
 	elseif hoverButton==NODE_PLAYBUTTON then
 		gameState.resetGame()
 		gameState.setShakeTimer(0.5)
+		sound.play("/sounds#roll")
 		msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="shaking"})
 	end
 end
@@ -80,9 +81,7 @@ function on_input(self, action_id, action)
 	if action_id==nil then
 		updateMainMenuHover(action.x,action.y)
 	elseif action_id == hash("leftclick") and action.pressed then
-		print(hoverButton)
 		updateMainMenuHover(action.x, action.y)
-		print(hoverButton)
 		doMainMenuClick()
 	end
 end

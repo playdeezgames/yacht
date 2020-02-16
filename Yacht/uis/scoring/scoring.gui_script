@@ -16,6 +16,8 @@ local NODE_YACHT = "Yacht"
 local NODE_CHANCE = "Chance"
 local NODE_CANCEL = "Cancel"
 local NODE_COMMIT = "Commit"
+local NODE_TOTALSCORE = "TotalScore"
+local NODE_ADDEDSCORE = "AddedScore"
 local nodes = {NODE_ACES, NODE_BONUS, NODE_CANCEL, NODE_CHANCE, NODE_COMMIT, NODE_FIVES, NODE_FOUROFAKIND, NODE_FOURS, NODE_FULLHOUSE, NODE_LARGESTRAIGHT, NODE_SIXES, NODE_SMALLSTRAIGHT, NODE_THREEOFAKIND, NODE_THREES, NODE_TWOS, NODE_YACHT}
 local enabled = {}
 enabled[NODE_ACES]=true
@@ -75,6 +77,15 @@ function init(self)
 end
 
 function update(self, dt)
+	local totalScore = gameState.getTotalScore()
+	if gameState.getCurrentScoreType()~=nil then
+		local addedScore = gameState.evaluateScore(gameState.getCurrentScoreType())
+		gui.set_text(gui.get_node(NODE_ADDEDSCORE), totalScore.."+"..addedScore)
+		totalScore = totalScore + addedScore
+	else
+		gui.set_text(gui.get_node(NODE_ADDEDSCORE), "")
+	end
+	gui.set_text(gui.get_node(NODE_TOTALSCORE), "Total score: "..totalScore)
 	enabled[NODE_COMMIT]=gameState.getCurrentScoreType()~=nil
 	for i, v in ipairs(nodes) do
 		local node = gui.get_node(v)
@@ -124,6 +135,7 @@ local function doScoringClick()
 			if scoreTypes[hoverNode]~=nil then
 				gameState.setCurrentScoreType(scoreTypes[hoverNode])
 			elseif hoverNode==NODE_CANCEL then
+				gameState.setCurrentScoreType(nil)
 				msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="rolling"})
 			elseif hoverNode==NODE_COMMIT then
 				local scoreType = gameState.getCurrentScoreType()
@@ -131,8 +143,10 @@ local function doScoringClick()
 					local score = gameState.evaluateScore(scoreType)
 					gameState.recordScore(scoreType, gameState.evaluateScore(scoreType))
 					if gameState.nextRound() then
+						sound.play("/sounds#roll")
 						msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(),{state="shaking"})
 					else
+						msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(),{state="ending"})
 					end
 				end
 			end

@@ -414,6 +414,14 @@ function module.nextRound()
 	end
 end
 
+function module.getTotalScore()
+	local total = 0
+	for k, v in pairs(scores) do
+		total = total+v
+	end
+	return total
+end
+
 return module
 
 --SCORE_ACES

@@ -6,17 +6,20 @@ local STATE_MAINMENU = "mainmenu"
 local STATE_ROLLING = "rolling"
 local STATE_SCORING = "scoring"
 local STATE_SHAKING = "shaking"
+local STATE_ENDING = "ending"
 
 local URL_MAINMENU = "/mainmenu"
 local URL_ROLLING = "/rolling"
 local URL_SCORING = "/scoring"
 local URL_SHAKING = "/shaking"
+local URL_ENDING = "/ending"
 
 local stateTable = {}
 stateTable[STATE_MAINMENU]=URL_MAINMENU
 stateTable[STATE_ROLLING]=URL_ROLLING
 stateTable[STATE_SCORING]=URL_SCORING
 stateTable[STATE_SHAKING]=URL_SHAKING
+stateTable[STATE_ENDING]=URL_ENDING
 
 function init(self)
 	options.loadOptions()

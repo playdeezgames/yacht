@@ -13,4 +13,5 @@ input_method = HiddenInputField
 
 [project]
 title = Yacht
+version = 0.9
 

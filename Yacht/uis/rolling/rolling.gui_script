@@ -87,6 +87,7 @@ local function doRollingClick()
 		gameState.toggleKept(5)
 		gameState.render()
 	elseif hoverButton==NODE_ROLLBUTTON then
+		sound.play("/sounds#roll")
 		gameState.reroll()
 		msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="shaking"})
 	elseif hoverButton==NODE_SCOREBUTTON then
