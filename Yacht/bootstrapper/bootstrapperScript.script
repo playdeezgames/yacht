@@ -5,15 +5,18 @@ local options = require("common.options")
 local STATE_MAINMENU = "mainmenu"
 local STATE_ROLLING = "rolling"
 local STATE_SCORING = "scoring"
+local STATE_SHAKING = "shaking"
 
 local URL_MAINMENU = "/mainmenu"
 local URL_ROLLING = "/rolling"
 local URL_SCORING = "/scoring"
+local URL_SHAKING = "/shaking"
 
 local stateTable = {}
 stateTable[STATE_MAINMENU]=URL_MAINMENU
 stateTable[STATE_ROLLING]=URL_ROLLING
 stateTable[STATE_SCORING]=URL_SCORING
+stateTable[STATE_SHAKING]=URL_SHAKING
 
 function init(self)
 	options.loadOptions()
@@ -25,7 +28,6 @@ function init(self)
 end
 
 function on_message(self, message_id, message, sender)
-	print(message_id)
 	if message_id==hash(messageIds.MESSAGEID_SETUISTATE()) then
 		for k, v in pairs(stateTable) do
 			if k==message.state then

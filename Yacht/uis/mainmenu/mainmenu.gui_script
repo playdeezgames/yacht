@@ -72,7 +72,8 @@ local function doMainMenuClick()
 		--TODO: make stats screen!
 	elseif hoverButton==NODE_PLAYBUTTON then
 		gameState.resetGame()
-		msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="rolling"})
+		gameState.setShakeTimer(0.5)
+		msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="shaking"})
 	end
 end
 

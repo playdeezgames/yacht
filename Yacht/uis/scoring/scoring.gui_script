@@ -1,3 +1,5 @@
+local gameState = require("game.state")
+local messageIds = require("common.messageids")
 local NODE_ACES = "Aces"
 local NODE_TWOS = "Twos"
 local NODE_THREES = "Threes"
@@ -12,19 +14,137 @@ local NODE_SMALLSTRAIGHT = "SmallStraight"
 local NODE_LARGESTRAIGHT = "LargeStraight"
 local NODE_YACHT = "Yacht"
 local NODE_CHANCE = "Chance"
+local NODE_CANCEL = "Cancel"
+local NODE_COMMIT = "Commit"
+local nodes = {NODE_ACES, NODE_BONUS, NODE_CANCEL, NODE_CHANCE, NODE_COMMIT, NODE_FIVES, NODE_FOUROFAKIND, NODE_FOURS, NODE_FULLHOUSE, NODE_LARGESTRAIGHT, NODE_SIXES, NODE_SMALLSTRAIGHT, NODE_THREEOFAKIND, NODE_THREES, NODE_TWOS, NODE_YACHT}
+local enabled = {}
+enabled[NODE_ACES]=true
+enabled[NODE_BONUS]=false
+enabled[NODE_CANCEL]=true
+enabled[NODE_CHANCE]=true
+enabled[NODE_COMMIT]=true
+enabled[NODE_FIVES]=true
+enabled[NODE_FOUROFAKIND]=true
+enabled[NODE_FOURS]=true
+enabled[NODE_FULLHOUSE]=true
+enabled[NODE_LARGESTRAIGHT]=true
+enabled[NODE_SIXES]=true
+enabled[NODE_SMALLSTRAIGHT]=true
+enabled[NODE_THREEOFAKIND]=true
+enabled[NODE_THREES]=true
+enabled[NODE_TWOS]=true
+enabled[NODE_YACHT]=true
+local prefixes = {}
+prefixes[NODE_ACES]="Aces"
+prefixes[NODE_BONUS]="Bonus"
+prefixes[NODE_CHANCE]="Chance"
+prefixes[NODE_FIVES]="Fives"
+prefixes[NODE_FOUROFAKIND]="Four of a kind"
+prefixes[NODE_FOURS]="Fours"
+prefixes[NODE_FULLHOUSE]="Full house"
+prefixes[NODE_LARGESTRAIGHT]="Large straight"
+prefixes[NODE_SIXES]="Sixes"
+prefixes[NODE_SMALLSTRAIGHT]="Small straight"
+prefixes[NODE_THREEOFAKIND]="Three of a kind"
+prefixes[NODE_THREES]="Three"
+prefixes[NODE_TWOS]="Twos"
+prefixes[NODE_YACHT]="Yacht"
+scoreTypes= {}
+scoreTypes[NODE_ACES]=gameState.SCORE_ACES()
+scoreTypes[NODE_BONUS]=gameState.SCORE_BONUS()
+scoreTypes[NODE_CHANCE]=gameState.SCORE_CHANCE()
+scoreTypes[NODE_FIVES]=gameState.SCORE_FIVES()
+scoreTypes[NODE_FOUROFAKIND]=gameState.SCORE_FOUROFAKIND()
+scoreTypes[NODE_FOURS]=gameState.SCORE_FOURS()
+scoreTypes[NODE_FULLHOUSE]=gameState.SCORE_FULLHOUSE()
+scoreTypes[NODE_LARGESTRAIGHT]=gameState.SCORE_LARGESTRAIGHT()
+scoreTypes[NODE_SIXES]=gameState.SCORE_SIXES()
+scoreTypes[NODE_SMALLSTRAIGHT]=gameState.SCORE_SMALLSTRAIGHT()
+scoreTypes[NODE_THREEOFAKIND]=gameState.SCORE_THREEOFAKIND()
+scoreTypes[NODE_THREES]=gameState.SCORE_THREES()
+scoreTypes[NODE_TWOS]=gameState.SCORE_TWOS()
+scoreTypes[NODE_YACHT]=gameState.SCORE_YACHT()
+local hoverNode = nil
+local hoverColor = vmath.vector3(0.6,1.0,0.6)
+local normalColor = vmath.vector3(1.0,1.0,1.0)
+local disabledColor = vmath.vector3(0.5,0.5,0.5)
+local selectedHoverColor = vmath.vector3(0.6,1.0,1.0)
+local selectedNormalColor = vmath.vector3(0.6,0.6,1.0)
 
 function init(self)
 end
 
 function update(self, dt)
+	enabled[NODE_COMMIT]=gameState.getCurrentScoreType()~=nil
+	for i, v in ipairs(nodes) do
+		local node = gui.get_node(v)
+		if scoreTypes[v]~=nil then
+			enabled[v]=gameState.getScore(scoreTypes[v])==nil
+			local score = gameState.getScore(scoreTypes[v])
+			if score~=nil then
+				gui.set_text(node, prefixes[v].." "..score)
+			else
+				score = gameState.evaluateScore(scoreTypes[v])
+				gui.set_text(node, prefixes[v].."(+"..score..")")
+			end
+		end
+		if enabled[v] then 
+			if scoreTypes[v]~=nil and gameState.getCurrentScoreType()==scoreTypes[v] then
+				if v == hoverNode then
+					gui.set_color(node, selectedHoverColor)
+				else
+					gui.set_color(node, selectedNormalColor)
+				end
+			else
+				if v == hoverNode then
+					gui.set_color(node, hoverColor)
+				else
+					gui.set_color(node, normalColor)
+				end
+			end
+		else
+			gui.set_color(node, disabledColor)
+		end
+	end
 end
 
 local function updateScoringHoverButton(x,y)
-	
+	hoverNode = nil	
+	for i, v in ipairs(nodes) do
+		local node = gui.get_node(v)
+		if hoverNode==nil and gui.pick_node(node, x, y) then
+			hoverNode = v
+		end
+	end
+end
+
+local function doScoringClick()
+	if hoverNode~=nil then
+		if enabled[hoverNode] then
+			if scoreTypes[hoverNode]~=nil then
+				gameState.setCurrentScoreType(scoreTypes[hoverNode])
+			elseif hoverNode==NODE_CANCEL then
+				msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="rolling"})
+			elseif hoverNode==NODE_COMMIT then
+				local scoreType = gameState.getCurrentScoreType()
+				if scoreType~=nil then
+					local score = gameState.evaluateScore(scoreType)
+					gameState.recordScore(scoreType, gameState.evaluateScore(scoreType))
+					if gameState.nextRound() then
+						msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(),{state="shaking"})
+					else
+					end
+				end
+			end
+		end
+	end
 end
 
 function on_input(self, action_id, action)
 	if action_id == nil then
 		updateScoringHoverButton(action.x, action.y)
+	elseif action_id == hash("leftclick") and action.pressed then
+		updateScoringHoverButton(action.x, action.y)
+		doScoringClick()		
 	end
 end

@@ -1,6 +1,8 @@
 local MAXIMUM_ROLL = 6
 local MINIMUM_ROLL = 1
 local DICE_COUNT = 5
+local ROUND_COUNT = 13
+local ROLL_COUNT = 3
 local FRAMES = {"One","Two","Three","Four","Five","Six"}
 local SCORE_ACES = "aces"
 local SCORE_TWOS = "twos"
@@ -45,6 +47,17 @@ dieStates[5].keepUrl = "/fifthDie#keep"
 local scores = {}
 local currentRound = 0
 local currentRoll = 0
+local currentScoreType = nil
+local shakeTimer = 0
+
+function calculateBonus()
+	local tally = (scores[SCORE_ACES] or 0) + (scores[SCORE_TWOS] or 0) + (scores[SCORE_THREES] or 0) + (scores[SCORE_FOURS] or 0) + (scores[SCORE_FIVES] or 0) + (scores[SCORE_SIXES] or 0)
+	if tally>=63 then
+		scores[SCORE_BONUS] = 35
+	else	
+		scores[SCORE_BONUS] = 0
+	end
+end
 
 local module = {}
 
@@ -99,12 +112,14 @@ function startRound()
 	currentRoll = 1
 	module.clearKepts()
 	module.render()
+	module.setShakeTimer(0.5)
 end
 
 function module.resetGame()
 	scores = {}
 	currentRound = 1
 	startRound()
+	calculateBonus()
 end
 
 function module.SCORE_ACES()
@@ -282,9 +297,11 @@ function scoreEvaluators.small_straight()
 	end
 	if moreThanTwo then
 		return 0
-	elseif counts[1]>0 and counts[2]>0 and counts[3]>0 and counts[4]>0 and counts[5]>0 then
+	elseif counts[1]>0 and counts[2]>0 and counts[3]>0 and counts[4]>0 then
 		return 30
-	elseif counts[2]>0 and counts[3]>0 and counts[4]>0 and counts[5]>0 and counts[6]>0 then
+	elseif counts[2]>0 and counts[3]>0 and counts[4]>0 and counts[5]>0 then
+		return 30
+	elseif counts[3]>0 and counts[4]>0 and counts[5]>0 and counts[6]>0 then
 		return 30
 	else
 		return 0
@@ -338,15 +355,6 @@ function module.evaluateScore(scoreType)
 	return scoreEvaluators[scoreType]()
 end
 
-function calculateBonus()
-	local tally = (scores[SCORE_ACES] or 0) + (scores[SCORE_TWOS] or 0) + (scores[SCORE_THREES] or 0) + (scores[SCORE_FOURS] or 0) + (scores[SCORE_FIVES] or 0) + (scores[SCORE_SIXES] or 0)
-	if tally>=63 then
-		scores[SCORE_BONUS] = 35
-	else	
-		scores[SCORE_BONUS] = 0
-	end
-end
-
 function module.recordScore(scoreType,value)
 	if scoreType ~= SCORE_BONUS then
 		scores[scoreType]=value
@@ -367,14 +375,41 @@ function module.getCurrentRoll()
 end
 
 function module.canRollAgain()
-	return currentRoll<3
+	return currentRoll<ROLL_COUNT
 end
 
 function module.reroll()
 	if module.canRollAgain() then
+		module.setShakeTimer(0.5)
 		module.rollDice()
 		module.render()
 		currentRoll = currentRoll + 1
+	end
+end
+
+function module.setCurrentScoreType(scoreType)
+	currentScoreType = scoreType
+end
+
+function module.getCurrentScoreType()
+	return currentScoreType
+end
+
+function module.setShakeTimer(value)
+	shakeTimer = value
+end
+
+function module.getShakeTimer()
+	return shakeTimer
+end
+
+function module.nextRound()
+	if module.getCurrentRound() < ROUND_COUNT then
+		currentRound = currentRound + 1
+		startRound()
+		return true
+	else
+		return false
 	end
 end
 

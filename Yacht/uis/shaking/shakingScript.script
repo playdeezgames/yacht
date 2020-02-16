@@ -1,0 +1,20 @@
+local gameState = require("game.state")
+local messageIds = require("common.messageids")
+local lastTime = os.clock()
+
+function update(self, dt)
+	local currentTime = os.clock()
+	local deltaTime = currentTime - lastTime
+	lastTime = currentTime
+	local shakeTimer = gameState.getShakeTimer()
+	if shakeTimer>0 then
+		gameState.rollDice()
+		gameState.render()
+		shakeTimer = shakeTimer - deltaTime
+		if shakeTimer<=0 then
+			shakeTimer = 0
+			msg.post("/bootstrapper", messageIds.MESSAGEID_SETUISTATE(), {state="rolling"})
+		end
+		gameState.setShakeTimer(shakeTimer)
+	end
+end
